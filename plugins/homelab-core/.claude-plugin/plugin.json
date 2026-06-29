@@ -2,8 +2,8 @@
   "name": "homelab-core",
   "description": "Shared conventions for all homelab-assist plugins: the change-approval safety policy, the SSH-confirmation gate, and how to research version-correct canonical documentation. Install alongside any other homelab-assist plugin.",
   "author": { "name": "Redth", "email": "jondick@gmail.com" },
-  "homepage": "https://github.com/Redth/homelab",
-  "repository": "https://github.com/Redth/homelab",
+  "homepage": "https://github.com/Redth/homelab-assist",
+  "repository": "https://github.com/Redth/homelab-assist",
   "license": "MIT",
   "keywords": ["homelab", "safety", "conventions", "research"],
   "skills": "./skills/"

@@ -16,7 +16,7 @@ A growing **Claude Code plugin marketplace** for managing homelab infrastructure
 In Claude Code:
 
 ```
-/plugin marketplace add Redth/homelab
+/plugin marketplace add Redth/homelab-assist
 /plugin install homelab-core@homelab-assist
 /plugin install proxmox@homelab-assist
 /plugin install docker@homelab-assist

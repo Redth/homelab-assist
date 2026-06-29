@@ -5,7 +5,7 @@ REM caches it, and runs it. No .NET runtime required.
 setlocal enabledelayedexpansion
 
 set "DIR=%~dp0"
-set "REPO=Redth/homelab"
+set "REPO=Redth/homelab-assist"
 set /p VERSION=<"%DIR%VERSION"
 set "RID=win-x64"
 

@@ -84,7 +84,7 @@ Optional frontmatter: `allowed-tools` (restrict tools), `disable-model-invocatio
 
 ```
 /plugin marketplace add ./           # local
-/plugin marketplace add Redth/homelab
+/plugin marketplace add Redth/homelab-assist
 /plugin install proxmox@homelab-assist
 /plugin marketplace update homelab-assist
 /plugin list

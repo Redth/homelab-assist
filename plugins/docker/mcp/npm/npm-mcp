@@ -11,7 +11,7 @@ set -eu
 
 unset CDPATH
 DIR=$(cd -- "$(dirname -- "$0")" && pwd)
-REPO="Redth/homelab"
+REPO="Redth/homelab-assist"
 VERSION=$(cat "$DIR/VERSION")
 
 os=$(uname -s)
