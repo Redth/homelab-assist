@@ -11,14 +11,16 @@ Lives at `.claude-plugin/marketplace.json` in the repo root.
 {
   "name": "homelab-assist",
   "owner": { "name": "Redth", "email": "you@example.com" },
-  "metadata": { "pluginRoot": "./plugins" },
   "plugins": [
-    { "name": "proxmox", "source": "proxmox", "description": "...", "keywords": ["proxmox"] }
+    { "name": "proxmox", "source": "./plugins/proxmox", "description": "...", "keywords": ["proxmox"] }
   ]
 }
 ```
 
-- `metadata.pluginRoot` lets `source` be a bare folder name (`"proxmox"`) instead of `"./plugins/proxmox"`.
+- **`source` for an in-repo plugin must be an explicit relative path starting with `./`** (e.g.
+  `"./plugins/proxmox"`), resolved from the marketplace repo root. Do **not** use a bare folder name — that
+  relies on `metadata.pluginRoot`, a newer field that older Claude Code versions reject with *"this plugin
+  uses a source type your Claude Code version does not support."* Explicit `./` paths work on every version.
 - `source` may instead be an object for an external repo:
   `{ "source": "github", "repo": "owner/repo", "ref": "main" }`.
 - Some names are reserved (e.g. `anthropic-marketplace`, `claude-*`). `homelab-assist` is fine.

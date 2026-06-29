@@ -6,27 +6,24 @@
     "email": "jondick@gmail.com"
   },
   "description": "A growing collection of Claude Code plugins for managing homelab infrastructure (Proxmox, Docker, and more). API-first, SSH-as-last-resort, with built-in safety confirmation and version-correct research conventions.",
-  "metadata": {
-    "pluginRoot": "./plugins"
-  },
   "plugins": [
     {
       "name": "homelab-core",
-      "source": "homelab-core",
+      "source": "./plugins/homelab-core",
       "description": "Shared conventions for all homelab plugins: change-approval safety policy, SSH-confirmation gate, and how to research version-correct canonical docs. Install this alongside any other homelab-assist plugin.",
       "keywords": ["homelab", "safety", "conventions", "research"],
       "category": "infrastructure"
     },
     {
       "name": "proxmox",
-      "source": "proxmox",
+      "source": "./plugins/proxmox",
       "description": "Manage Proxmox VE via the REST API first (VMs, LXC, storage, backups, updates, cluster) and drop to host-level config edits only when required (GPU passthrough, lxc.idmap, hookscripts, networking). Version-aware.",
       "keywords": ["proxmox", "pve", "virtualization", "lxc", "qemu", "gpu-passthrough"],
       "category": "infrastructure"
     },
     {
       "name": "docker",
-      "source": "docker",
+      "source": "./plugins/docker",
       "description": "Manage Docker compose stacks across your homelab. Dockhand-first (with Hawser agents), plus Portainer and Dockge support, shared compose knowledge, nginx-proxy-manager label routing, and Docker-on-Proxmox networking/storage patterns.",
       "keywords": ["docker", "compose", "dockhand", "hawser", "portainer", "dockge", "nginx-proxy-manager"],
       "category": "infrastructure"
