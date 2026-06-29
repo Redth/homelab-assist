@@ -1,0 +1,40 @@
+{
+  "_comment": "OPTIONAL. References community/official MCP servers for Docker management. The docker skills work without any MCP server (via each tool's REST API / the Docker Engine API / compose files). Enable only the server(s) matching the control plane you use. Never commit real credentials — values come from the environment. Verify each launch command against the server's current README; packaging changes over time.",
+  "mcpServers": {
+    "npm": {
+      "_comment": "OUR OWN server (built in this repo at src/NpmMcp, distributed as a Native AOT binary via GitHub Releases). Manages nginx-proxy-manager directly: list/create/update/delete proxy hosts, certificates, redirects, and debug_routing. The launcher downloads the right per-arch binary on first run (no .NET runtime needed). Set NPM_URL (e.g. http://npm.lan:81), NPM_EMAIL, NPM_PASSWORD; NPM_VERIFY_SSL=0 for self-signed certs. SECRETS: rather than putting these in the env below or a dotfile, store them with `homelab-secret set NPM_PASSWORD` (homelab-core skill 'homelab-secrets') — if homelab-secret is on PATH the launcher auto-resolves any unset NPM_* from the OS secret store.",
+      "command": "${CLAUDE_PLUGIN_ROOT}/mcp/npm/npm-mcp",
+      "env": {
+        "NPM_URL": "${NPM_URL}",
+        "NPM_EMAIL": "${NPM_EMAIL}",
+        "NPM_PASSWORD": "${NPM_PASSWORD}",
+        "NPM_VERIFY_SSL": "${NPM_VERIFY_SSL}"
+      }
+    },
+    "dockhand": {
+      "_comment": "Primary. strausmann/mcp-dockhand exposes ~130 Dockhand tools. Distributed as a Docker image; the entry below runs it via docker. Adjust to your deployment (it can also run as a long-lived container exposing MCP over a port).",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-e", "DOCKHAND_URL",
+        "-e", "DOCKHAND_USERNAME",
+        "-e", "DOCKHAND_PASSWORD",
+        "ghcr.io/strausmann/mcp-dockhand:latest"
+      ],
+      "env": {
+        "DOCKHAND_URL": "${DOCKHAND_URL}",
+        "DOCKHAND_USERNAME": "${DOCKHAND_USERNAME}",
+        "DOCKHAND_PASSWORD": "${DOCKHAND_PASSWORD}"
+      }
+    },
+    "portainer": {
+      "_comment": "Secondary. Official portainer/portainer-mcp. Match the package version to your Portainer version (e.g. ~=2.42).",
+      "command": "uvx",
+      "args": ["--from", "mcp-portainer~=2.42.0", "mcp-portainer"],
+      "env": {
+        "PORTAINER_URL": "${PORTAINER_URL}",
+        "PORTAINER_API_KEY": "${PORTAINER_API_KEY}"
+      }
+    }
+  }
+}

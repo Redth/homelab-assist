@@ -1,0 +1,35 @@
+# Secrets — never commit real credentials. Skills read tokens from env/user config.
+*.env
+.env
+.env.*
+*.secret
+secrets.json
+config.local.*
+*.pem
+*.key
+
+# Local Claude state
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Build artifacts (C# MCP servers, etc.)
+bin/
+obj/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+
+# .NET AOT publish output + symbols
+out/
+aot-out/
+*.dSYM/
+
+# Launcher-downloaded binaries (fetched at runtime from GitHub Releases)
+plugins/*/mcp/*/.cache/

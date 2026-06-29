@@ -1,0 +1,17 @@
+{
+  "_comment": "OPTIONAL. References the community ProxmoxMCP-Plus server (https://github.com/RekklesNA/ProxmoxMCP-Plus). The proxmox skills work without any MCP server via the REST API + scripts/pve-api.sh. To enable this server, install ProxmoxMCP-Plus and set the env vars below (e.g. in your shell or Claude Code env). Never commit real credentials. Verify the launch command against the server's current README — packaging changes over time.",
+  "mcpServers": {
+    "proxmox": {
+      "command": "uvx",
+      "args": ["proxmox-mcp-plus"],
+      "env": {
+        "PROXMOX_HOST": "${PROXMOX_HOST}",
+        "PROXMOX_PORT": "${PROXMOX_PORT}",
+        "PROXMOX_USER": "${PROXMOX_USER}",
+        "PROXMOX_TOKEN_NAME": "${PROXMOX_TOKEN_NAME}",
+        "PROXMOX_TOKEN_VALUE": "${PROXMOX_TOKEN_VALUE}",
+        "PROXMOX_VERIFY_SSL": "${PROXMOX_VERIFY_SSL}"
+      }
+    }
+  }
+}
