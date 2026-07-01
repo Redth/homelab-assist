@@ -1,0 +1,77 @@
+#!/usr/bin/env sh
+# Generic launcher for homelab-assist native-AOT MCP servers.
+#
+# Usage (from .mcp.json):
+#   "command": "${CLAUDE_PLUGIN_ROOT}/mcp/mcp-launch",
+#   "args": ["<name>"]
+# where <name> is a server directory under mcp/ (e.g. "npm", "dockhand"). The release binary base
+# name is "<name>-mcp" and the pinned release tag lives in mcp/<name>/VERSION.
+#
+# On first run it detects the client OS/arch, downloads the matching prebuilt binary from this repo's
+# GitHub Releases, caches it, resolves any secrets listed in mcp/<name>/SECRETS from the OS secret
+# store (via homelab-secret, if on PATH), and execs the binary. No .NET runtime required.
+#
+# Covers macOS and Linux clients. On Windows use mcp-launch.cmd.
+set -eu
+
+NAME="${1:?mcp-launch: server name argument required (e.g. npm, dockhand)}"
+shift
+
+unset CDPATH
+ROOT=$(cd -- "$(dirname -- "$0")" && pwd)
+DIR="$ROOT/$NAME"
+BINBASE="${NAME}-mcp"
+REPO="Redth/homelab-assist"
+VERSION=$(cat "$DIR/VERSION")
+
+os=$(uname -s)
+arch=$(uname -m)
+case "$os" in
+  Darwin)
+    case "$arch" in
+      arm64) rid=osx-arm64 ;;
+      x86_64) rid=osx-x64 ;;
+      *) echo "$BINBASE: unsupported macOS arch '$arch'" >&2; exit 1 ;;
+    esac ;;
+  Linux)
+    case "$arch" in
+      aarch64|arm64) rid=linux-arm64 ;;
+      x86_64) rid=linux-x64 ;;
+      *) echo "$BINBASE: unsupported Linux arch '$arch'" >&2; exit 1 ;;
+    esac ;;
+  *)
+    echo "$BINBASE: unsupported OS '$os' (on Windows use mcp-launch.cmd)" >&2; exit 1 ;;
+esac
+
+CACHE="${CLAUDE_PLUGIN_DATA:-$DIR/.cache}"
+BIN="$CACHE/${BINBASE}-${VERSION}-${rid}"
+
+if [ ! -x "$BIN" ]; then
+  mkdir -p "$CACHE"
+  url="https://github.com/${REPO}/releases/download/${VERSION}/${BINBASE}-${rid}"
+  echo "$BINBASE: downloading ${VERSION} (${rid})..." >&2
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$url" -o "$BIN.tmp"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO "$BIN.tmp" "$url"
+  else
+    echo "$BINBASE: need curl or wget to download the server binary" >&2; exit 1
+  fi
+  chmod +x "$BIN.tmp"
+  mv "$BIN.tmp" "$BIN"
+fi
+
+# Resolve any missing configured secrets from the OS secret store (homelab-secret, if on PATH).
+# Existing env values always win. mcp/<name>/SECRETS lists one env-var name per line.
+if command -v homelab-secret >/dev/null 2>&1 && [ -f "$DIR/SECRETS" ]; then
+  while IFS= read -r k; do
+    [ -z "$k" ] && continue
+    case "$k" in \#*) continue ;; esac
+    eval "cur=\${$k:-}"
+    if [ -z "$cur" ] && homelab-secret has "$k" 2>/dev/null; then
+      eval "export $k=\"\$(homelab-secret get \"$k\")\""
+    fi
+  done < "$DIR/SECRETS"
+fi
+
+exec "$BIN" "$@"

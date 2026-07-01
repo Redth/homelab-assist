@@ -2,8 +2,9 @@
   "_comment": "OPTIONAL. References community/official MCP servers for Docker management. The docker skills work without any MCP server (via each tool's REST API / the Docker Engine API / compose files). Enable only the server(s) matching the control plane you use. Never commit real credentials — values come from the environment. Verify each launch command against the server's current README; packaging changes over time.",
   "mcpServers": {
     "npm": {
-      "_comment": "OUR OWN server (built in this repo at src/NpmMcp, distributed as a Native AOT binary via GitHub Releases). Manages nginx-proxy-manager directly: list/create/update/delete proxy hosts, certificates, redirects, and debug_routing. The launcher downloads the right per-arch binary on first run (no .NET runtime needed). Set NPM_URL (e.g. http://npm.lan:81), NPM_EMAIL, NPM_PASSWORD; NPM_VERIFY_SSL=0 for self-signed certs. SECRETS: rather than putting these in the env below or a dotfile, store them with `homelab-secret set NPM_PASSWORD` (homelab-core skill 'homelab-secrets') — if homelab-secret is on PATH the launcher auto-resolves any unset NPM_* from the OS secret store.",
-      "command": "${CLAUDE_PLUGIN_ROOT}/mcp/npm/npm-mcp",
+      "_comment": "OUR OWN server (built in this repo at src/NpmMcp, distributed as a Native AOT binary via GitHub Releases). Manages nginx-proxy-manager directly. The generic launcher downloads the right per-arch binary on first run (no .NET runtime needed). Set NPM_URL (e.g. http://npm.lan:81), NPM_EMAIL, NPM_PASSWORD; NPM_VERIFY_SSL=0 for self-signed certs. SECRETS: rather than env/dotfiles, store them with `homelab-secret set NPM_PASSWORD` (homelab-core skill 'homelab-secrets') — if homelab-secret is on PATH the launcher auto-resolves any unset NPM_* (see mcp/npm/SECRETS) from the OS secret store.",
+      "command": "${CLAUDE_PLUGIN_ROOT}/mcp/mcp-launch",
+      "args": ["npm"],
       "env": {
         "NPM_URL": "${NPM_URL}",
         "NPM_EMAIL": "${NPM_EMAIL}",
@@ -12,19 +13,15 @@
       }
     },
     "dockhand": {
-      "_comment": "Primary. strausmann/mcp-dockhand exposes ~130 Dockhand tools. Distributed as a Docker image; the entry below runs it via docker. Adjust to your deployment (it can also run as a long-lived container exposing MCP over a port).",
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "-e", "DOCKHAND_URL",
-        "-e", "DOCKHAND_USERNAME",
-        "-e", "DOCKHAND_PASSWORD",
-        "ghcr.io/strausmann/mcp-dockhand:latest"
-      ],
+      "_comment": "OUR OWN native server (built in this repo at src/DockhandMcp, distributed as a Native AOT binary via GitHub Releases). Does what strausmann/mcp-dockhand does but as a self-contained CLI binary — NO local Docker container required. Talks to the Dockhand REST API. Set DOCKHAND_URL (e.g. http://dockhand.lan:3000) and either DOCKHAND_TOKEN (API token, preferred) or DOCKHAND_USERNAME + DOCKHAND_PASSWORD; DOCKHAND_VERIFY_SSL=0 for self-signed certs. Store secrets with `homelab-secret set DOCKHAND_PASSWORD` — the launcher auto-resolves any unset DOCKHAND_* (see mcp/dockhand/SECRETS). Fallback (container-based) alternative: `docker run --rm -i -e DOCKHAND_URL -e DOCKHAND_USERNAME -e DOCKHAND_PASSWORD ghcr.io/strausmann/mcp-dockhand:latest`.",
+      "command": "${CLAUDE_PLUGIN_ROOT}/mcp/mcp-launch",
+      "args": ["dockhand"],
       "env": {
         "DOCKHAND_URL": "${DOCKHAND_URL}",
         "DOCKHAND_USERNAME": "${DOCKHAND_USERNAME}",
-        "DOCKHAND_PASSWORD": "${DOCKHAND_PASSWORD}"
+        "DOCKHAND_PASSWORD": "${DOCKHAND_PASSWORD}",
+        "DOCKHAND_TOKEN": "${DOCKHAND_TOKEN}",
+        "DOCKHAND_VERIFY_SSL": "${DOCKHAND_VERIFY_SSL}"
       }
     },
     "portainer": {

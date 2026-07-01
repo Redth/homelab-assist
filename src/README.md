@@ -9,6 +9,7 @@ single self-contained binary with **no .NET runtime required** on the user's mac
 | Project | Plugin | Fills gap |
 | --- | --- | --- |
 | [`NpmMcp`](NpmMcp) | `docker` | Manage nginx-proxy-manager directly (proxy hosts, certs, redirects, routing debug). No community MCP existed. |
+| [`DockhandMcp`](DockhandMcp) | `docker` | Manage Dockhand (environments, stacks, containers, images) directly — same idea as `strausmann/mcp-dockhand` but a self-contained CLI binary, no Docker container needed. |
 
 ## Build & run locally
 
@@ -30,13 +31,22 @@ The SDK is pinned via [`global.json`](global.json) to .NET 10. AOT cross-compila
 
 ## Distribution
 
-- **CI:** [`.github/workflows/release-npm-mcp.yml`](../.github/workflows/release-npm-mcp.yml) builds the AOT
-  binary for `linux-x64`, `linux-arm64`, `win-x64`, `osx-x64`, `osx-arm64` and attaches them to a GitHub
-  Release. Trigger by pushing a tag like `npm-mcp-v0.1.0`.
-- **Consumption:** the `docker` plugin ships a thin launcher
-  ([`plugins/docker/mcp/npm/npm-mcp`](../plugins/docker/mcp/npm/npm-mcp)) that detects the client OS/arch,
-  downloads the matching binary on first run (tag pinned in the sibling `VERSION` file), caches it, and execs
-  it. The plugin's `.mcp.json` points at the launcher.
+- **CI:** [`.github/workflows/release-mcp.yml`](../.github/workflows/release-mcp.yml) is generic — a tag
+  `<name>-mcp-v<semver>` builds `src/<Name>Mcp` for `linux-x64`, `linux-arm64`, `win-x64`, `osx-x64`,
+  `osx-arm64` and attaches the binaries to a GitHub Release. (e.g. `npm-mcp-v0.1.0` → `src/NpmMcp`,
+  `dockhand-mcp-v0.1.0` → `src/DockhandMcp`.)
+- **Consumption:** the `docker` plugin ships one generic launcher
+  ([`plugins/docker/mcp/mcp-launch`](../plugins/docker/mcp/mcp-launch)); `.mcp.json` calls it with the server
+  name (`args: ["dockhand"]`). It detects the client OS/arch, downloads the matching binary on first run (tag
+  pinned in `mcp/<name>/VERSION`), caches it, resolves any secrets listed in `mcp/<name>/SECRETS` from the OS
+  secret store, and execs the binary.
+
+## Adding a new server
+
+1. Create `src/<Name>Mcp` (copy an existing project's `.csproj`; keep the AOT settings).
+2. Add `plugins/docker/mcp/<name>/VERSION` (pin `<name>-mcp-v0.1.0`) and `SECRETS` (env-var names).
+3. Add an entry to `plugins/docker/.mcp.json` pointing `command` at `mcp/mcp-launch` with `args: ["<name>"]`.
+4. Commit, then push the tag `<name>-mcp-v0.1.0` — CI builds and releases all platforms.
 
 ## AOT rules of thumb (followed by these projects)
 

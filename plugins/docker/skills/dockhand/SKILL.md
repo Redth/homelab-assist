@@ -31,15 +31,22 @@ environment — pick the correct one for every operation and say which one in yo
 
 In order of preference:
 
-1. **MCP server** — [`strausmann/mcp-dockhand`](https://github.com/strausmann/mcp-dockhand) (`ghcr.io/strausmann/mcp-dockhand`)
-   exposes ~130 tools (containers, stacks, images, networks, volumes, Git, vuln scanning, system admin). If
-   configured (see the plugin `.mcp.json`), use its tools — it's the most reliable surface. Auth via
-   `DOCKHAND_URL` / `DOCKHAND_USERNAME` / `DOCKHAND_PASSWORD`; it re-logs in on 401.
-2. **Dockhand REST API** — 130+ endpoints (containers, stacks, images, networks, volumes, environments,
-   agents, settings), most requiring `environmentId`. Token-based auth (Argon2id) + optional OIDC/SSO. As of
-   early 2026 a formal OpenAPI spec was still in progress — **verify current API shape against the live
-   instance / docs** (https://finsys-dockhand.mintlify.app/) before relying on specific endpoints
-   (`homelab-research`). See [`reference/dockhand-api.md`](../../reference/dockhand-api.md).
+1. **Our native `dockhand` MCP server** (built in this repo, `src/DockhandMcp`, shipped as a self-contained
+   Native AOT binary — **no Docker container needed**). If configured (see the plugin `.mcp.json`), prefer its
+   tools: `dockhand_list_environments` (call first to get the env id), then `dockhand_list_stacks`,
+   `dockhand_get_stack_compose`, `dockhand_deploy_stack`, `dockhand_start/stop/restart_stack`,
+   `dockhand_update_stack_compose`, `dockhand_create_stack`, `dockhand_down_stack`, `dockhand_delete_stack`,
+   plus container (`dockhand_list_containers`, `inspect`, `logs`, `start/stop/restart/delete`), image
+   (`list`, `pull`), and system tools. **Almost every tool takes an `env` id** — get it from
+   `dockhand_list_environments` first. Auth: `DOCKHAND_URL` + `DOCKHAND_TOKEN` (a `dh_` API token, preferred)
+   **or** `DOCKHAND_USERNAME` + `DOCKHAND_PASSWORD`; `DOCKHAND_VERIFY_SSL=0` for self-signed certs.
+2. **Community `strausmann/mcp-dockhand`** (`ghcr.io/strausmann/mcp-dockhand`, ~130 tools, runs as a Docker
+   container) — the documented fallback if you'd rather not use our native binary.
+3. **Dockhand REST API directly** — base path `/api`; nearly all resource calls are scoped by an `?env=<id>`
+   query param; auth via `Authorization: Bearer dh_<token>` or a cookie login at `POST /api/auth/login`.
+   Deploy/start/stop/etc. stream progress as SSE. Verify shapes against the live instance / docs
+   (https://finsys-dockhand.mintlify.app/) when unsure (`homelab-research`). See
+   [`reference/dockhand-api.md`](../../reference/dockhand-api.md).
 
 ## Common tasks
 
