@@ -33,3 +33,6 @@ aot-out/
 
 # Launcher-downloaded binaries (fetched at runtime from GitHub Releases)
 plugins/*/mcp/*/.cache/
+
+# EngrAIm memory (plugin disabled for this workspace)
+.engraim/
